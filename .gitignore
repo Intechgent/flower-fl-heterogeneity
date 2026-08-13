@@ -1,0 +1,6 @@
+.venv/
+__pycache__/
+*.pyc
+final_model.pt
+*.pt
+outputs/
