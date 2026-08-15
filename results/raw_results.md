@@ -54,29 +54,41 @@ Client drift is visible in the train/test gap: at lr=0.1, alpha=0.1 has the lowe
 any run (0.92) and the worst global accuracy (18.0). Clients fit their narrow local label
 distributions well while the averaged global model does not.
 
-## Notes on discarded runs
+## Methodology note
 
-An earlier set of runs was discarded: Flower's stored simulation config silently reverted from 10
-SuperNodes to the default 2 partway through the session, so client count was not controlled across
-conditions. Those runs also showed a complete divergence to random-guessing accuracy at alpha=10
-under lr=0.1, and between-seed differences at fixed alpha larger than the differences between alpha
-values.
+An earlier set of runs was discarded. Flower's stored simulation config silently reverted from 10
+SuperNodes to the default 2 partway through the session, so client count was not controlled. All runs
+above pass it explicitly on the command line.
+
+A controlled check at alpha=10, lr=0.1, seed 1 gives 22.7 with 2 clients versus 29.2 with 10, so
+federation size alone accounts for several points: averaging over ten updates dilutes individual
+client drift, where with two clients each client's drift is half the global update.
+
+## Local epochs (lr=0.01, seed 1, 10 clients, 30 rounds)
+
+| local epochs | alpha=10 | alpha=0.1 |
+|---|---|---|
+| 1 | 60.0 | 49.4 |
+| 5 | 55.7 | 42.8 |
+
+alpha=10, 5 local epochs
+9.4, 39.5, 49.6, 54.1, 55.6, 55.9, 56.6, 57.1, 56.8, 56.9, 56.4, 56.8, 56.9, 56.8, 57.0, 56.8, 56.8, 56.7, 56.5, 56.7, 56.4, 56.5, 56.3, 56.2, 56.3, 56.6, 56.1, 56.0, 56.1, 56.0, 55.7
+
+alpha=0.1, 5 local epochs
+9.4, 10.0, 21.8, 30.5, 37.2, 39.5, 42.4, 44.3, 45.0, 45.4, 43.4, 44.0, 43.6, 43.8, 43.5, 43.2, 43.5, 42.8, 43.2, 42.4, 42.0, 43.0, 42.5, 42.8, 43.3, 42.8, 42.1, 43.2, 42.2, 43.0, 42.8
+
+More local training per round converges faster early but reaches a lower ceiling, and the penalty is
+larger under severe heterogeneity: -4.3 points at alpha=10 versus -6.6 points at alpha=0.1.
+
+At alpha=0.1 with 5 local epochs, training loss falls to 0.094 while evaluation loss rises to 2.89,
+above the untrained model's 2.30. Clients fit their narrow local label distributions almost perfectly
+and the averaged global model generalises worse. Accuracy peaks at round 9 (45.4) and then declines,
+so additional federated rounds actively hurt.
+
+Note this compares equal round counts, not equal total local computation: the 5-epoch runs perform
+five times more local work overall.
 
 ## Environment note
 
 charset-normalizer is pinned below 3.5.1 in pyproject.toml. Version 3.5.1 was published mid-session
 with no Windows wheel, which broke Flower's per-run dependency install (exit code 608).
-
-## Notes on discarded runs
-
-An earlier set of runs was discarded: Flower's stored simulation config silently reverted from 10
-SuperNodes to the default 2 partway through the session, so client count was not controlled.
-
-Those runs showed severe instability at lr=0.1, including a complete divergence to random-guessing
-accuracy at alpha=10 and an 8-point disagreement between seeds at alpha=0.5.
-
-The controlled lr=0.1 runs at 10 clients did not show this: all three alpha values climbed steadily
-with no divergence, suggesting client count rather than learning rate was the main driver. With only
-2 clients each client's drift is half the global update, leaving little averaging to absorb it. This
-is not yet confirmed, as the earlier runs also varied by seed; a controlled run at 2 clients with
-lr=0.1 would settle it.
