@@ -57,7 +57,7 @@ def load_data(partition_id: int, num_partitions: int, batch_size: int):
         partitioner = DirichletPartitioner(
             num_partitions=num_partitions,
             partition_by="label",
-            alpha=0.1,
+            alpha=0.5,
             seed=1,
         )
         fds = FederatedDataset(
