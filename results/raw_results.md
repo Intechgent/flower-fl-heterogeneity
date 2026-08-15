@@ -1,47 +1,82 @@
 # Raw experimental results
 
-Setup: CIFAR-10, small CNN, FedAvg, 10 clients, 30 rounds, local-epochs=1, lr=0.1, SGD momentum=0.9.
-Metric: server-side (centralised) accuracy on the full CIFAR-10 test set, per round.
+Setup: CIFAR-10, small CNN (2 conv + 3 fc), FedAvg, 10 simulated clients, 30 rounds,
+1 local epoch per round, batch size 32, SGD with momentum 0.9, seed 1.
+Partitioning: DirichletPartitioner by label.
+Metric: centralised accuracy (%) on the full CIFAR-10 test set, evaluated server-side each round.
+Rounds listed 0 to 30, where round 0 is the untrained global model.
 
-## Seed 42
+All runs pass the client count explicitly:
 
-alpha=10  (diverged at round 5, stuck at ~10% until round 20)
-10.2, 16.6, 22.8, 25.1, 17.0, 10.0, 10.0, 10.1, 10.0, 10.1, 10.0, 10.0, 10.4, 10.3, 10.2, 10.6, 11.1, 10.9, 11.5, 10.2, 12.6, 15.9, 15.9, 12.2, 12.9, 13.3, 16.2, 16.7, 13.2, 16.4, 16.7
-
-alpha=0.5
-10.2, 15.0, 17.3, 21.3, 20.1, 20.2, 22.3, 23.2, 23.3, 21.6, 23.9, 23.7, 23.7, 21.2, 23.0, 23.9, 23.7, 24.4, 23.5, 23.1, 23.5, 23.6, 24.0, 24.0, 17.2, 21.5, 22.3, 23.5, 23.1, 22.4, 24.1
-
-alpha=0.1
-10.2, 18.2, 16.4, 15.9, 17.8, 16.9, 17.1, 17.2, 17.2, 17.6, 16.6, 18.4, 19.0, 21.2, 17.7, 20.2, 17.1, 19.6, 18.4, 20.0, 18.0, 19.7, 17.4, 19.5, 19.4, 20.8, 21.6, 11.6, 10.4, 17.2, 18.3
-
-## Seed 1
-
-alpha=10
-9.4, 13.2, 17.6, 20.2, 20.8, 23.4, 22.3, 21.6, 23.9, 22.5, 20.2, 23.5, 22.8, 23.2, 23.4, 24.2, 24.7, 24.2, 24.2, 24.3, 24.1, 24.4, 24.3, 24.9, 23.8, 21.7, 24.8, 23.3, 24.8, 25.0, 22.7
-
-alpha=0.5
-9.4, 16.8, 18.3, 15.2, 17.0, 17.2, 16.6, 13.2, 19.2, 17.3, 19.0, 14.9, 17.2, 16.7, 14.4, 16.6, 17.4, 17.3, 16.9, 15.6, 11.1, 16.3, 16.3, 15.7, 15.5, 16.8, 16.2, 10.7, 15.9, 14.9, 15.9
-
-alpha=0.1
-9.4, 13.5, 16.4, 17.1, 16.7, 17.3, 17.0, 16.6, 17.8, 17.7, 17.2, 19.4, 17.0, 17.4, 18.0, 17.4, 16.5, 17.7, 18.1, 18.3, 16.0, 19.7, 18.3, 16.6, 20.4, 17.6, 19.7, 13.6, 16.3, 16.0, 18.1
+    flwr run . --stream --federation-config="num-supernodes=10"
 
 ## Summary
 
-| alpha | seed 42 final | seed 1 final | seed 42 best | seed 1 best |
-|---|---|---|---|---|
-| 10 | 16.7 (diverged) | 22.7 | 25.1 | 25.0 |
-| 0.5 | 24.1 | 15.9 | 24.4 | 19.2 |
-| 0.1 | 18.3 | 18.1 | 21.6 | 20.4 |
+| alpha | lr=0.01 | lr=0.1 |
+|---|---|---|
+| 10 (mild skew) | 60.0 | 29.2 |
+| 0.5 (moderate) | 56.6 | 29.1 |
+| 0.1 (severe) | 49.4 | 18.0 |
+
+## lr = 0.01
+
+alpha=10
+9.4, 17.7, 29.7, 35.3, 40.1, 42.7, 44.9, 46.4, 48.1, 49.6, 50.6, 51.6, 52.3, 53.5, 53.9, 54.9, 55.4, 56.0, 56.5, 56.8, 57.4, 57.7, 58.0, 58.3, 58.7, 58.8, 59.1, 59.6, 60.0, 60.0, 60.0
+
+alpha=0.5
+9.4, 11.0, 24.7, 31.7, 35.4, 38.4, 40.5, 42.8, 44.4, 45.6, 46.8, 47.8, 48.8, 49.5, 50.5, 51.4, 52.6, 53.0, 53.7, 54.1, 54.3, 54.6, 55.0, 55.1, 55.5, 55.5, 55.6, 56.0, 56.4, 56.4, 56.6
+
+alpha=0.1
+9.4, 10.0, 18.6, 24.9, 27.6, 29.0, 30.5, 33.2, 35.7, 38.3, 40.8, 42.3, 43.5, 44.7, 45.6, 46.0, 47.1, 47.6, 47.9, 48.2, 48.6, 48.6, 49.1, 49.4, 49.6, 49.2, 49.3, 49.5, 49.1, 48.8, 49.4
+
+## lr = 0.1
+
+alpha=10
+9.4, 10.0, 13.8, 21.0, 20.6, 16.3, 18.6, 18.3, 18.2, 20.6, 22.5, 21.2, 21.7, 23.0, 23.5, 24.6, 24.4, 24.0, 24.6, 25.8, 26.1, 23.7, 27.5, 27.3, 26.2, 28.5, 30.3, 28.9, 29.6, 24.9, 29.2
+
+alpha=0.5
+9.4, 10.0, 10.0, 16.8, 17.6, 19.4, 20.9, 23.0, 23.8, 24.3, 25.4, 25.4, 27.3, 25.9, 27.1, 28.9, 26.4, 27.5, 28.5, 29.1, 27.4, 26.7, 28.7, 28.3, 27.8, 28.1, 28.6, 29.0, 29.0, 29.0, 29.1
+
+alpha=0.1
+9.4, 10.0, 10.0, 10.6, 16.1, 13.5, 14.9, 17.2, 17.9, 17.4, 16.5, 18.3, 17.4, 16.9, 16.4, 16.4, 16.6, 18.3, 16.8, 18.7, 17.4, 19.9, 17.9, 20.0, 17.9, 18.1, 17.5, 19.8, 16.8, 17.3, 18.0
 
 ## Observations
 
-- alpha=0.1 replicates consistently across seeds (18.3 / 18.1 final), with characteristic
-  oscillation and no stable convergence.
-- alpha=10 and alpha=0.5 are highly seed-dependent. At alpha=0.5 the two seeds differ by 8 points:
-  seed 42 converged smoothly to ~24%, seed 1 never converged.
-- One alpha=10 run (seed 42) diverged entirely at round 5, sitting at ~10% (random guessing,
-  train loss pinned at ln(10)=2.303) for 15 rounds before partially recovering.
-- Between-seed variance at fixed alpha exceeds the between-alpha differences, so with only two
-  seeds no clean alpha-to-performance relationship can be claimed.
-- Hypothesis: lr=0.1 with SGD momentum=0.9 is unstable for this setup, amplifying seed differences
-  and swamping the heterogeneity effect. Next step: rerun at a lower learning rate.
+At lr=0.01, accuracy decreases monotonically with heterogeneity: 60.0 / 56.6 / 49.4, a spread of
+10.6 points. All three curves are smooth, with no oscillation or divergence. Convergence speed also
+degrades: alpha=10 passes 50% by round 10, alpha=0.5 by round 15, alpha=0.1 never does.
+
+At lr=0.1 every run is far worse, and alpha=10 and alpha=0.5 become indistinguishable (29.2 vs 29.1).
+Severe heterogeneity still shows through at 18.0. So a poorly tuned learning rate compresses the
+mild-to-moderate distinction into nothing while severe skew remains visible.
+
+Client drift is visible in the train/test gap: at lr=0.1, alpha=0.1 has the lowest training loss of
+any run (0.92) and the worst global accuracy (18.0). Clients fit their narrow local label
+distributions well while the averaged global model does not.
+
+## Notes on discarded runs
+
+An earlier set of runs was discarded: Flower's stored simulation config silently reverted from 10
+SuperNodes to the default 2 partway through the session, so client count was not controlled across
+conditions. Those runs also showed a complete divergence to random-guessing accuracy at alpha=10
+under lr=0.1, and between-seed differences at fixed alpha larger than the differences between alpha
+values.
+
+## Environment note
+
+charset-normalizer is pinned below 3.5.1 in pyproject.toml. Version 3.5.1 was published mid-session
+with no Windows wheel, which broke Flower's per-run dependency install (exit code 608).
+
+## Notes on discarded runs
+
+An earlier set of runs was discarded: Flower's stored simulation config silently reverted from 10
+SuperNodes to the default 2 partway through the session, so client count was not controlled.
+
+Those runs showed severe instability at lr=0.1, including a complete divergence to random-guessing
+accuracy at alpha=10 and an 8-point disagreement between seeds at alpha=0.5.
+
+The controlled lr=0.1 runs at 10 clients did not show this: all three alpha values climbed steadily
+with no divergence, suggesting client count rather than learning rate was the main driver. With only
+2 clients each client's drift is half the global update, leaving little averaging to absorb it. This
+is not yet confirmed, as the earlier runs also varied by seed; a controlled run at 2 clients with
+lr=0.1 would settle it.
