@@ -11,7 +11,7 @@ from flwr_datasets.partitioner import DirichletPartitioner
 from torch.utils.data import DataLoader
 from torchvision.transforms import Compose, Normalize, ToTensor
 
-def set_seed(seed: int = 42):
+def set_seed(seed: int = 1):
     """Fix all random sources for reproducible runs."""
     torch.manual_seed(seed)
     np.random.seed(seed)
@@ -57,8 +57,8 @@ def load_data(partition_id: int, num_partitions: int, batch_size: int):
         partitioner = DirichletPartitioner(
             num_partitions=num_partitions,
             partition_by="label",
-            alpha=0.5,
-            seed=42,
+            alpha=0.1,
+            seed=1,
         )
         fds = FederatedDataset(
             dataset="uoft-cs/cifar10",
