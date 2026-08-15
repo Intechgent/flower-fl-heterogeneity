@@ -5,7 +5,7 @@ from flwr.app import ArrayRecord, ConfigRecord, Context, MetricRecord
 from flwr.serverapp import Grid, ServerApp
 from flwr.serverapp.strategy import FedAvg
 
-from pytorchexample.task import Net, load_centralized_dataset, test
+from pytorchexample.task import Net, load_centralized_dataset, test, set_seed
 
 # Create ServerApp
 app = ServerApp()
@@ -14,6 +14,7 @@ app = ServerApp()
 @app.main()
 def main(grid: Grid, context: Context) -> None:
     """Main entry point for the ServerApp."""
+    set_seed()
 
     # Read run config
     fraction_evaluate: float = context.run_config["fraction-evaluate"]

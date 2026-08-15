@@ -1,14 +1,21 @@
 """pytorchexample: A Flower / PyTorch app."""
 
+import random
+import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from datasets import load_dataset
 from flwr_datasets import FederatedDataset
-from flwr_datasets.partitioner import IidPartitioner
+from flwr_datasets.partitioner import DirichletPartitioner
 from torch.utils.data import DataLoader
 from torchvision.transforms import Compose, Normalize, ToTensor
 
+def set_seed(seed: int = 42):
+    """Fix all random sources for reproducible runs."""
+    torch.manual_seed(seed)
+    np.random.seed(seed)
+    random.seed(seed)
 
 class Net(nn.Module):
     """Model (simple CNN adapted from 'PyTorch: A 60 Minute Blitz')"""
@@ -47,7 +54,12 @@ def load_data(partition_id: int, num_partitions: int, batch_size: int):
     # Only initialize `FederatedDataset` once
     global fds
     if fds is None:
-        partitioner = IidPartitioner(num_partitions=num_partitions)
+        partitioner = DirichletPartitioner(
+            num_partitions=num_partitions,
+            partition_by="label",
+            alpha=0.5,
+            seed=42,
+        )
         fds = FederatedDataset(
             dataset="uoft-cs/cifar10",
             partitioners={"train": partitioner},

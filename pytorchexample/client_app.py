@@ -4,7 +4,7 @@ import torch
 from flwr.app import ArrayRecord, Context, Message, MetricRecord, RecordDict
 from flwr.clientapp import ClientApp
 
-from pytorchexample.task import Net, load_data
+from pytorchexample.task import Net, load_data, set_seed
 from pytorchexample.task import test as test_fn
 from pytorchexample.task import train as train_fn
 
@@ -15,6 +15,7 @@ app = ClientApp()
 @app.train()
 def train(msg: Message, context: Context):
     """Train the model on local data."""
+    set_seed()
 
     # Load the model and initialize it with the received weights
     model = Net()
@@ -51,6 +52,7 @@ def train(msg: Message, context: Context):
 @app.evaluate()
 def evaluate(msg: Message, context: Context):
     """Evaluate the model on local data."""
+    set_seed()
 
     # Load the model and initialize it with the received weights
     model = Net()
