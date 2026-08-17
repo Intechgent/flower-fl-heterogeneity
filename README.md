@@ -3,6 +3,7 @@
 Measuring how FedAvg behaves as client data becomes non-IID, using Flower with Dirichlet partitioning
 on CIFAR-10, and how that interacts with learning rate and the amount of local training per round.
 
+![Accuracy vs rounds for three alpha values](results/alpha_comparison.png)
 ## Setup
 
 - Flower 1.33, PyTorch quickstart template as the starting scaffold
@@ -46,6 +47,8 @@ attributing a result to federation dynamics, it is worth checking that the optim
 binding constraint.
 
 ### 3. More local training per round converges faster but reaches a lower ceiling
+
+![Effect of local training amount on final accuracy](results/local_epochs_comparison.png)
 
 At lr=0.01, comparing 1 versus 5 local epochs per round:
 
